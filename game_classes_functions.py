@@ -49,7 +49,7 @@ class Deck:
     def deal_card(self) -> object:
         """
         Deal a card from the deck
-        :return: A card object from the deck 
+        :return: A card object from the deck
         """
         return self.deck.pop()
 
