@@ -7,88 +7,71 @@ import game_classes_functions as gcf
 
 
 def main():
-
     while True:
-        playing = True  # bool flag
+        game = gcf.BlackjackGame()  # initialize the game
         # welcome statement
         print('Welcome to BlackJack! Get as close to 21 as you can without going over!\n\
             Dealer hits until he/she reaches 17. Aces count as 1 or 11.')
 
-        # create and shuffle a new deck
-
-        new_deck = gcf.Deck()
-        new_deck.shuffle_cards()
-
-        # create a player and a dealer and deal 2 cards to each
-
-        player_hand = gcf.Hand()
-        player_hand.add_card(new_deck.deal_card())  # card 1 added
-        player_hand.add_card(new_deck.deal_card())  # card 2 added
-
-        dealer_hand = gcf.Hand()
-        dealer_hand.add_card(new_deck.deal_card())
-        dealer_hand.add_card(new_deck.deal_card())
-
-        # player chips setup
-        player_chips = gcf.Chips()  # default value is 100
-
         # prompt player for bet
-        gcf.take_bet(player_chips)  # call the take bet function
+        gcf.take_bet(game.chips)  # call the take bet function
 
         # Show cards (but keep one dealer card hidden)
-        gcf.show_some(player_hand, dealer_hand)
+        gcf.show_some(game.player_hand, game.dealer_hand)
 
-        while playing:
+        while game.playing:
             # prompt the player for next action
-            gcf.hit_or_stand(new_deck, player_hand)  # call the hit or stand function
-
+            gcf.hit_or_stand(game.deck, game.player_hand, game)  # call the hit or stand function
             # Show cards (but keep one dealer card hidden)
-            gcf.show_some(player_hand, dealer_hand)
+            gcf.show_some(game.player_hand, game.dealer_hand)
 
             # If player's hand exceeds 21,
-            if player_hand.value > 21:
-                gcf.player_busts(player_hand, dealer_hand, player_chips)
+            if game.player_hand.value > 21:
+                gcf.player_busts(game.player_hand, game.dealer_hand, game.chips)
                 break
 
-        # If Player hasn't busted, play Dealer's hand until Dealer reaches 17
-        if player_hand.value <= 21:
+        # If Player hasn't busted, play Dealer's hand until Dealer reaches 17 (soft 17 rule)
+        if game.player_hand.value <= 21:
 
-            while dealer_hand.value < 17:
-                gcf.hit(new_deck, dealer_hand)  # calling the hit function for the dealer
+            while game.dealer_hand.value < 17:
+                gcf.hit(game.deck, game.dealer_hand)  # calling the hit function for the dealer
 
             # Show all cards
-            gcf.show_all(player_hand, dealer_hand)
+            gcf.show_all(game.player_hand, game.dealer_hand)
 
             # Run different winning scenarios
-            if dealer_hand.value > 21:
-                gcf.dealer_busts(player_hand, dealer_hand, player_chips)
+            if game.dealer_hand.value > 21:
+                gcf.dealer_busts(game.player_hand, game.dealer_hand, game.chips)
 
-            elif dealer_hand.value > player_hand.value:
-                gcf.dealer_wins(player_hand, dealer_hand, player_chips)
+            elif game.dealer_hand.value > game.player_hand.value:
+                gcf.dealer_wins(game.player_hand, game.dealer_hand, game.chips)
 
-            elif dealer_hand.value < player_hand.value:
-                gcf.player_wins(player_hand, dealer_hand, player_chips)
+            elif game.dealer_hand.value < game.player_hand.value:
+                gcf.player_wins(game.player_hand, game.dealer_hand, game.chips)
 
             else:
-                gcf.push(player_hand, dealer_hand)
+                gcf.push(game.player_hand, game.dealer_hand)
 
         # display the total hand value of the player
-        print("Total cards value in hand: {}".format(player_hand.value))
+        print("Total cards value in hand: {}".format(game.player_hand.value))
 
         # display the total chips of the player
-        print("Player has {} chips in total...".format(player_chips.total))
-        # Ask to play again
-        new_game = input("Would you like to play another hand? Enter 'y' or 'n' ")
+        print("Player has {} chips in total...".format(game.chips.total))
 
-        if new_game[0].lower() == 'y':
-            playing = True
-            continue
-        elif new_game[0].lower() == 'n':
-            print("Thanks for playing! Exiting the game....")
-            break
-        else:
-            print("Please enter either 'y' or 'n'.")
-            continue
+        # Ask to play again
+
+        while True:
+
+            new_game = input("Would you like to play another hand? Enter 'y' or 'n' ")
+
+            if new_game[0].lower() == 'y':
+                game.reset_game()  # reset the game state
+                break
+            elif new_game[0].lower() == 'n':
+                print("Thanks for playing! Exiting the game....")
+                return  # exit the main function
+            else:
+                print("Please enter either 'y' or 'n'.")
 
 
 # running the main script

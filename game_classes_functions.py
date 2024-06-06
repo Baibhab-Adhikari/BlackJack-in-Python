@@ -5,7 +5,6 @@ BlackJack Game in Python, by <Baibhab Adhikari>
 # Global variables and imports
 import random
 
-playing = True  # bool flag
 
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
 ranks = ('Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King', 'Ace')
@@ -50,7 +49,7 @@ class Deck:
     def deal_card(self) -> object:
         """
         Deal a card from the deck
-        :return: A card object from the deck
+        :return: A card object from the deck 
         """
         return self.deck.pop()
 
@@ -66,7 +65,7 @@ class Hand:
     def __init__(self):
         self.cards = []  # stores a list of cards currently in hand
         self.value = 0  # start with total value = 0
-        self.aces = 0  # keeping track of ace value
+        self.aces = 0  # keeping track of number of Ace cards in hand
 
     def add_card(self, card) -> None:
         """
@@ -85,9 +84,9 @@ class Hand:
         :return: None
         """
 
-        if self.value > 21 and self.aces:
-            self.value -= 10
-            self.aces -= 1
+        if self.value > 21 and self.aces:  # if total value > 21 and Ace is present
+            self.value -= 10  # reduce 10 from total value (Ace value is 1 now)
+            self.aces -= 1  # remove one Ace from the hand
 
 
 class Chips:
@@ -95,8 +94,8 @@ class Chips:
     A class to represent a chips of the player
     """
 
-    def __init__(self, total=100):
-        self.total = total  # default value of 100
+    def __init__(self):
+        self.total = 100  # default total chip value of 100
         self.bet = 0
 
     def win_bet(self) -> None:
@@ -111,7 +110,7 @@ class Chips:
         Add bet to total chips when player loses.
         :return: None
         """
-        self.total -= self.bet
+        self.total -= self.bet  # subtract bet from total
 
 
 def take_bet(chips) -> None:
@@ -146,16 +145,17 @@ def hit(deck, hand) -> None:
     hand.adjust_for_ace()  # adjust ace value based on current card value in hand
 
 
-def hit_or_stand(deck, hand) -> None:
+def hit_or_stand(deck, hand, game) -> None:
     """
     Hit or stand
     :param deck: Deck object
     :param hand: Hand object
+    :param game: Game object
     :return: None
     """
-    global playing  # re-declaring the global bool flag
 
     while True:
+
         x = input("Would you like to Hit or Stand? Enter 'h' or 's': ")
 
         if not x:  # Check if input is empty
@@ -164,9 +164,10 @@ def hit_or_stand(deck, hand) -> None:
 
         if x[0].lower() == "h":
             hit(deck, hand)  # calling the hit function
+
         elif x[0].lower() == "s":
             print("Player stands! Dealer is playing...")
-            playing = False  # dealer starts playing now
+            game.playing = False  # dealer starts playing now
         else:
             print('Sorry, you have to enter either h or s!')
             continue
@@ -180,23 +181,23 @@ def show_some(player, dealer) -> None:
     :param dealer: Hand object
     :return: None
     """
-    print("\nDealer's Hand:")
+    print("\nDealer's Hand:")  # dealer shows only one card
     print(" <card hidden>")
     print('', dealer.cards[1])
-    print("\nPlayer's Hand:", *player.cards, sep='\n ')
+    print("\nPlayer's Hand:", *player.cards, sep='\n ')  # player shows all the cards
 
 
 def show_all(player, dealer) -> None:
     """
-    Show all cards
+    Show all cards for both dealer and player
     :param player: Hand object
     :param dealer: Hand object
     :return: None
     """
     print("\nDealer's Hand:", *dealer.cards, sep='\n ')
-    print("Dealer's Hand =", dealer.value)
+    print(f"Dealer's Hand = {dealer.value}")
     print("\nPlayer's Hand:", *player.cards, sep='\n ')
-    print("Player's Hand =", player.value)
+    print(f"Player's Hand ={player.value}")
 
 
 def player_busts(player, dealer, chips) -> None:
@@ -208,7 +209,7 @@ def player_busts(player, dealer, chips) -> None:
     :return: None
     """
     print("Player busts!")
-    chips.lose_bet()
+    chips.lose_bet()  # call lose bet method from chips class
 
 
 def player_wins(player, dealer, chips) -> None:
@@ -220,7 +221,7 @@ def player_wins(player, dealer, chips) -> None:
     :return: None
     """
     print("Player wins!")
-    chips.win_bet()
+    chips.win_bet()  # call win bet method from chips class
 
 
 def dealer_busts(player, dealer, chips) -> None:
@@ -231,8 +232,8 @@ def dealer_busts(player, dealer, chips) -> None:
     :param chips: Chips object
     :return: None
     """
-    print("Dealer busts!")
-    chips.win_bet()
+    print("Dealer busts! Player WINS!!!!")
+    chips.win_bet()  # calling win bet method from chips class
 
 
 def dealer_wins(player, dealer, chips) -> None:
@@ -244,7 +245,7 @@ def dealer_wins(player, dealer, chips) -> None:
     :return: None
     """
     print("Dealer wins!")
-    chips.lose_bet()
+    chips.lose_bet()  # calling the lose bet method from chips class
 
 
 def push(player, dealer) -> None:
@@ -255,3 +256,31 @@ def push(player, dealer) -> None:
     :return: None
     """
     print("Dealer and Player tie! It's a push!")
+
+
+class BlackjackGame:
+    """
+    A class to encapsulate the game state
+    """
+    def __init__(self):
+        self.playing = True  # bool flag
+        self.deck = Deck()  # make new deck
+        self.deck.shuffle_cards()  # shuffle deck
+        self.player_hand = Hand()  # new player
+        self.dealer_hand = Hand()  # new dealer
+        self.chips = Chips()  # initialize total chips (100)
+        self.player_hand.add_card(self.deck.deal_card())  # deal 2 cards to player
+        self.player_hand.add_card(self.deck.deal_card())
+        self.dealer_hand.add_card(self.deck.deal_card())  # deal 2 cards to dealer
+        self.dealer_hand.add_card(self.deck.deal_card())
+
+    def reset_game(self):
+        self.deck = Deck()
+        self.deck.shuffle_cards()
+        self.player_hand = Hand()
+        self.dealer_hand = Hand()
+        self.player_hand.add_card(self.deck.deal_card())
+        self.player_hand.add_card(self.deck.deal_card())
+        self.dealer_hand.add_card(self.deck.deal_card())
+        self.dealer_hand.add_card(self.deck.deal_card())
+        self.playing = True

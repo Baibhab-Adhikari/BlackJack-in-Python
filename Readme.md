@@ -18,9 +18,6 @@ To run this game locally, clone the repository and run the main.py script
 
 Follow the on-screen instructions to play the game. You'll be prompted to make bets, hit or stand during your turn, and the game will determine the winner.
 
-## Test
-
-This project includes unit tests for the classes and functions. To run the tests, run the test.py script
 
 ## License
 
